@@ -5,7 +5,6 @@
 _start:
     la sp, boot_stack_top
     call rust_main
-    ld x1, (x0)
 
     .section .bss.stack
     .global boot_stack

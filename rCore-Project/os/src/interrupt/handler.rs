@@ -33,11 +33,11 @@ fn breakpoint(context: &mut Context) {
 }
 
 
-fn supervisor_timer(context: &mut Context) {
+fn supervisor_timer(_context: &mut Context) {
     timer::tick();
 }
 
-fn load_fault(context: &mut Context, stval: usize) {
+fn load_fault(_context: &mut Context, stval: usize) {
     if stval == 0x0 {
         println!("SUCCESS!");
     }
