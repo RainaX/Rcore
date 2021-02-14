@@ -1,5 +1,8 @@
 mod stacked_allocator;
+mod segment_tree_allocator;
+
 mod bitmap_vector_allocator;
+
 
 pub trait Allocator {
     fn new(capacity: usize) -> Self;
@@ -15,8 +18,10 @@ pub trait VectorAllocator {
 }
 
 pub use stacked_allocator::StackedAllocator;
+pub use segment_tree_allocator::SegmentTreeAllocator;
+
 pub use bitmap_vector_allocator::BitmapVectorAllocator;
 
-pub type AllocatorImpl = StackedAllocator;
+pub type AllocatorImpl = SegmentTreeAllocator;
 
 pub type VectorAllocatorImpl = BitmapVectorAllocator;
