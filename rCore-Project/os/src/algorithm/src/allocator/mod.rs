@@ -1,5 +1,6 @@
 mod stacked_allocator;
 mod bitmap_vector_allocator;
+mod buddy_system_vector_allocator;
 
 pub trait Allocator {
     fn new(capacity: usize) -> Self;
@@ -16,7 +17,8 @@ pub trait VectorAllocator {
 
 pub use stacked_allocator::StackedAllocator;
 pub use bitmap_vector_allocator::BitmapVectorAllocator;
+pub use buddy_system_vector_allocator::BuddySystemVectorAllocator;
 
 pub type AllocatorImpl = StackedAllocator;
 
-pub type VectorAllocatorImpl = BitmapVectorAllocator;
+pub type VectorAllocatorImpl = BuddySystemVectorAllocator;

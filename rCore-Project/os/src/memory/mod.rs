@@ -3,7 +3,7 @@
 
 pub mod address;
 pub mod config;
-pub mod heap;
+pub mod heap2;
 pub mod frame;
 pub mod range;
 
@@ -13,7 +13,7 @@ pub use {address::*, config::*, frame::FRAME_ALLOCATOR, range::Range};
 
 
 pub fn init() {
-    heap::init();
+    heap2::init();
     unsafe {
         riscv::register::sstatus::set_sum()
     };
