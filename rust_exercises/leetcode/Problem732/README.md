@@ -10,8 +10,8 @@ You are given some events `[start, end)`, after each given event, return an inte
 
 Implement the `MyCalendarThree` class:
 
-    * `MyCalendarThree()` Initializes the object.
-    * `int book(int start, int end)` Returns an integer `k` representing the largest integer such that there exists a `k`-booking in the calendar.
+* `MyCalendarThree()` Initializes the object.
+* `int book(int start, int end)` Returns an integer `k` representing the largest integer such that there exists a `k`-booking in the calendar.
 
 
 
