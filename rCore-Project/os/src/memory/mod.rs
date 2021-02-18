@@ -3,17 +3,23 @@
 
 pub mod address;
 pub mod config;
-pub mod heap2;
+pub mod heap;
 pub mod frame;
+pub mod mapping;
 pub mod range;
 
 pub type MemoryResult<T> = Result<T, &'static str>;
 
-pub use {address::*, config::*, frame::FRAME_ALLOCATOR, range::Range};
-
+pub use {
+    address::*,
+    config::*,
+    frame::FRAME_ALLOCATOR,
+    mapping::{Flags, MapType, MemorySet, Segment},
+    range::Range,
+};
 
 pub fn init() {
-    heap2::init();
+    heap::init();
     unsafe {
         riscv::register::sstatus::set_sum()
     };
