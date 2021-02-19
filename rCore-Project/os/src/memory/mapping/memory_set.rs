@@ -48,6 +48,12 @@ impl MemorySet {
                 range: Range::from(VirtualAddress::from(bss_start as usize)..*KERNEL_END_ADDRESS),
                 flags: Flags::READABLE | Flags::WRITABLE,
             },
+
+            Segment {
+                map_type: MapType::Linear,
+                range: Range::from(*KERNEL_END_ADDRESS..VirtualAddress::from(MEMORY_END_ADDRESS)),
+                flags: Flags::READABLE | Flags::WRITABLE,
+            },
         ];
         let mut mapping = Mapping::new()?;
 
