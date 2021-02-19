@@ -1,6 +1,6 @@
 # README
 
-This directory contains Java and Rust implementation for leetcode problem 728: My Calendar I
+This directory contains Java and Rust implementation for leetcode problem 729: My Calendar I
 
 ## Problem Descrition
 
