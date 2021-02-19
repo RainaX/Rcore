@@ -22,7 +22,7 @@ pub trait Swapper {
     fn retain(&mut self, predicate: impl Fn(&VirtualPageNumber) -> bool);
 }
 
-pub type SwapperImpl = FIFOSwapper;
+pub type SwapperImpl = ClockSwapper;
 
 /// 页面置换算法基础实现：FIFO
 pub struct FIFOSwapper {
@@ -50,5 +50,57 @@ impl Swapper for FIFOSwapper {
     }
     fn retain(&mut self, predicate: impl Fn(&VirtualPageNumber) -> bool) {
         self.queue.retain(|(vpn, _)| predicate(vpn));
+    }
+}
+
+
+pub struct ClockSwapper {
+    queue: VecDeque<(VirtualPageNumber, FrameTracker, usize)>,
+    quota: usize,
+}
+
+
+impl Swapper for ClockSwapper {
+    fn new(quota: usize) -> Self {
+        Self {
+            queue: VecDeque::new(),
+            quota,
+        }
+    }
+
+    fn full(&self) -> bool {
+        self.queue.len() == self.quota
+    }
+
+    fn pop(&mut self) -> Option<(VirtualPageNumber, FrameTracker)> {
+        if self.queue.is_empty() {
+            return None;
+        }
+
+        loop {
+            let (vpn, frame, entry) = self.queue.pop_front().unwrap();
+            let flags;
+
+            unsafe {
+                flags = (*(entry as *mut PageTableEntry)).flags();
+            }
+
+            if (flags & Flags::ACCESSED).bits() as usize > 0 {
+                unsafe {
+                    (*(entry as *mut PageTableEntry)).set_flags(flags - Flags::ACCESSED);
+                }
+                self.queue.push_back((vpn, frame, entry));
+            } else {
+                return Some((vpn, frame));
+            }
+        }
+    }
+
+    fn push(&mut self, vpn: VirtualPageNumber, frame: FrameTracker, entry: *mut PageTableEntry) {
+        self.queue.push_back((vpn, frame, entry as usize));
+    }
+
+    fn retain(&mut self, predicate: impl Fn(&VirtualPageNumber) -> bool) {
+        self.queue.retain(|(vpn, _, _)| predicate(vpn));
     }
 }

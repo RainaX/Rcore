@@ -73,7 +73,7 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
     crate::board::device_init(dtb_pa);
     fs::init();
 
-    /*
+    
     {
         let mut processor = PROCESSOR.lock();
         println!("get processor!");
@@ -84,17 +84,16 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
         processor.add_thread(thread);
         println!("thread has been added!");
     }
-     */
 
-    /*
+    
     PROCESSOR.lock().add_thread(create_kernel_thread(
         Process::new_kernel().unwrap(),
         test_page_fault as usize,
         None,
     ));
-     */
+     
 
-    PROCESSOR.lock().add_thread(create_user_process("user_shell"));
+    //PROCESSOR.lock().add_thread(create_user_process("user_shell"));
 
     extern "C" {
         fn __restore(context: usize);
