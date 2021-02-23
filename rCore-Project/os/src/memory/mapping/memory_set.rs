@@ -108,6 +108,26 @@ impl MemorySet {
         Ok(memory_set)
     }
 
+    pub fn fork(&self) -> MemoryResult<MemorySet> {
+        let mut child_memory_set = MemorySet::new_kernel()?;
+
+        for parent_seg in self.segments.iter() {
+            if child_memory_set.overlap_with(parent_seg.page_range()) {
+                continue;
+            }
+        
+            for vpn in parent_seg.page_range().iter() {
+                let child_seg = Segment {
+                    range: (vpn..(vpn + 1)).into(),
+                    ..*parent_seg
+                };
+                let data: &[u8; PAGE_SIZE] = VirtualAddress::from(vpn).deref();
+                child_memory_set.add_segment(child_seg, Some(data))?;
+            } 
+        }
+        Ok(child_memory_set)
+    }
+
 
     pub fn activate(&self) {
         self.mapping.activate();

@@ -57,6 +57,22 @@ impl Thread {
         Ok(thread)
     }
 
+    pub fn fork(&self, process: Arc<Process>, context: Context) -> Arc<Thread> {
+        Arc::new(Thread {
+            id: unsafe {
+                THREAD_COUNTER += 1;
+                THREAD_COUNTER
+            },
+            stack: self.stack,
+            process,
+            inner: Mutex::new(ThreadInner {
+                context: Some(context),
+                sleeping: false,
+                dead: false,
+            }),
+        })
+    } 
+
     pub fn inner(&self) -> spin::MutexGuard<ThreadInner> {
         self.inner.lock()
     }

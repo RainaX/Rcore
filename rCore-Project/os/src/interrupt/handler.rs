@@ -75,7 +75,12 @@ fn supervisor_external(context: &mut Context) -> *mut Context {
         println!("Thread {} killed by keyboard interrupt", id);
         PROCESSOR.lock().kill_current_thread();
         return PROCESSOR.lock().prepare_next_thread();
-    } 
+    }
+
+    if c == 'F' as usize {
+        return fork(context);
+    }
+ 
     if c <= 255 {
         if c == '\r' as usize {
             c = '\n' as usize;
@@ -97,3 +102,19 @@ fn fault(msg: &str, scause: Scause, stval: usize) -> *mut Context {
     PROCESSOR.lock().prepare_next_thread()
 } 
 
+
+fn fork(context: &mut Context) -> *mut Context {
+    let parent_thread = PROCESSOR.lock().current_thread();
+    let parent_process = parent_thread.process.clone();
+
+    if let Ok(child_process) = parent_process.fork() {
+        let child_thread = parent_thread.fork(child_process.clone(), *context);
+        PROCESSOR.lock().add_thread(child_thread);
+        context
+    } else {
+        println!("Fork failed");
+        PROCESSOR.lock().kill_current_thread();
+        PROCESSOR.lock().prepare_next_thread()
+    }
+}
+    

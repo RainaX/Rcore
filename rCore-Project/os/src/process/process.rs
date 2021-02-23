@@ -35,6 +35,19 @@ impl Process {
         }))
     }
 
+    pub fn fork(&self) -> MemoryResult<Arc<Self>> {
+        let memory_set = self.inner().memory_set.fork()?;
+        let descriptors = self.inner().descriptors.clone();
+
+        Ok(Arc::new(Self {
+            is_user: self.is_user,
+            inner: Mutex::new(ProcessInner {
+                memory_set,
+                descriptors,
+            }),
+        }))
+    }
+
     pub fn inner(&self) -> spin::MutexGuard<ProcessInner> {
         self.inner.lock()
     }

@@ -68,7 +68,13 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
 
 fn sample_process(id: usize) {
     println!("hello from kernel thread {}", id);
-    loop {}
+    let magic_number = 10086;
+    loop {
+        for _ in 0..100_0000 {}
+        let id = PROCESSOR.lock().current_thread().id;
+        println!("Thread ID: {}", id);
+        println!("Magic Number: {}", magic_number);
+    }
 }
 
 pub fn create_kernel_thread(
