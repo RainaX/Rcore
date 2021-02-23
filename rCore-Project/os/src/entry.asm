@@ -39,7 +39,10 @@ boot_page_table:
     .quad 0
 
     .quad (0x80000 << 10) | 0xcf
-    .zero 507 * 8
+    .zero 505 * 8
+
+    .quad (0x00000 << 10) | 0xcf
+    .quad 0
 
     .quad (0x80000 << 10) | 0xcf
     .quad 0

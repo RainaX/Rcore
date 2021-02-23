@@ -6,7 +6,7 @@
 
 
 .macro SAVE reg, offset
-    sd \reg, \offset*8(sp)
+    sd \reg, \offset * REG_SIZE(sp)
 .endm
 
 
@@ -16,7 +16,7 @@
 
 
 .macro LOAD reg, offset
-    ld \reg, \offset*8(sp)
+    ld \reg, \offset * REG_SIZE(sp)
 .endm
 
 
@@ -28,11 +28,13 @@
     .section .text
     .globl __interrupt
 __interrupt:
-    addi    sp, sp, -34*8
+    csrrw   sp, sscratch, sp
+
+    addi    sp, sp, -CONTEXT_SIZE * REG_SIZE
 
     SAVE    x1, 1
 
-    addi    x1, sp, 34*8
+    csrr    x1, sscratch
     SAVE    x1, 2
 
     .set    n, 3
@@ -42,10 +44,10 @@ __interrupt:
     .endr
 
 
-    csrr    s1, sstatus
-    csrr    s2, sepc
-    SAVE    s1, 32
-    SAVE    s2, 33
+    csrr    t0, sstatus
+    csrr    t1, sepc
+    SAVE    t0, 32
+    SAVE    t1, 33
 
 
     mv      a0, sp
@@ -59,10 +61,15 @@ __interrupt:
 
     .globl __restore
 __restore:
-    LOAD    s1, 32
-    LOAD    s2, 33
-    csrw    sstatus, s1
-    csrw    sepc, s2
+    mv      sp, a0
+
+    LOAD    t0, 32
+    LOAD    t1, 33
+    csrw    sstatus, t0 
+    csrw    sepc, t1
+
+    addi    t0, sp, CONTEXT_SIZE * REG_SIZE
+    csrw    sscratch, t0
 
     LOAD    x1, 1
     .set    n, 3

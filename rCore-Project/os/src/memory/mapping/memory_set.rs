@@ -6,6 +6,10 @@ use crate::memory::{
     MemoryResult,
 };
 use alloc::{vec, vec::Vec};
+use xmas_elf::{
+    program::{SegmentData, Type},
+    ElfFile,
+};
 
 
 pub struct MemorySet {
@@ -25,6 +29,12 @@ impl MemorySet {
 
 
         let segments = vec![
+            Segment {
+                map_type: MapType::Linear,
+                range: Range::from(DEVICE_START_ADDRESS..DEVICE_END_ADDRESS),
+                flags: Flags::READABLE | Flags::WRITABLE,
+            },
+
             Segment {
                 map_type: MapType::Linear,
                 range: Range::from((text_start as usize)..(rodata_start as usize)),
@@ -64,6 +74,38 @@ impl MemorySet {
             mapping,
             segments,
         })
+    }
+
+    pub fn from_elf(file: &ElfFile, is_user: bool) -> MemoryResult<MemorySet> {
+        let mut memory_set = MemorySet::new_kernel()?;
+
+        for program_header in file.program_iter() {
+            if program_header.get_type() != Ok(Type::Load) {
+                continue;
+            }
+
+            let start = VirtualAddress(program_header.virtual_addr() as usize);
+            let size = program_header.mem_size() as usize;
+            let data: &[u8] =
+                if let SegmentData::Undefined(data) = program_header.get_data(file).unwrap() {
+                    data
+                } else {
+                    return Err("unsupported elf format");
+                };
+
+            let segment = Segment {
+                map_type: MapType::Framed,
+                range: Range::from(start..(start + size)),
+                flags: Flags::user(is_user)
+                    | Flags::readable(program_header.flags().is_read())
+                    | Flags::writable(program_header.flags().is_write())
+                    | Flags::executable(program_header.flags().is_execute()),
+            };
+
+            memory_set.add_segment(segment, Some(data))?;
+        }
+
+        Ok(memory_set)
     }
 
 
