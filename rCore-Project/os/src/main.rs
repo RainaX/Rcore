@@ -46,7 +46,7 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
         let kernel_process = Process::new_kernel().unwrap();
 
         
-        for i in 1..2usize {
+        for i in 1..9usize {
             processor.add_thread(create_kernel_thread(
                 kernel_process.clone(),
                 sample_process as usize,
@@ -68,7 +68,7 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
 
 fn sample_process(id: usize) {
     println!("hello from kernel thread {}", id);
-    loop {}
+    for _ in 1..1000000 {}
 }
 
 pub fn create_kernel_thread(
